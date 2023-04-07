@@ -9,6 +9,7 @@ import {
 } from 'GraphQl/Mutations/mutations';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
+import defaultImg from 'assets/third_image.png';
 
 interface MemberRequestCardProps {
   key: string;
@@ -37,7 +38,7 @@ function MemberRequestCard(props: MemberRequestCardProps): JSX.Element {
       });
 
       /* istanbul ignore next */
-      toast.success('it is accepted');
+      toast.success(t('memberAdded'));
       /* istanbul ignore next */
       setTimeout(() => {
         window.location.reload();
@@ -45,9 +46,7 @@ function MemberRequestCard(props: MemberRequestCardProps): JSX.Element {
     } catch (error: any) {
       /* istanbul ignore next */
       if (error.message === 'Failed to fetch') {
-        toast.error(
-          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-        );
+        toast.error(t('talawaApiUnavailable'));
       } else {
         toast.error(error.message);
       }
@@ -69,9 +68,7 @@ function MemberRequestCard(props: MemberRequestCardProps): JSX.Element {
       } catch (error: any) {
         /* istanbul ignore next */
         if (error.message === 'Failed to fetch') {
-          toast.error(
-            'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-          );
+          toast.error(t('talawaApiUnavailable'));
         } else {
           toast.error(error.message);
         }
@@ -91,7 +88,7 @@ function MemberRequestCard(props: MemberRequestCardProps): JSX.Element {
             />
           ) : (
             <img
-              src="https://via.placeholder.com/200x100"
+              src={defaultImg}
               className={styles.memberimg}
               alt="userImage"
             />

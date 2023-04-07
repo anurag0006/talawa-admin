@@ -20,7 +20,7 @@ import {
 } from 'GraphQl/Mutations/mutations';
 import { SIGNUP_MUTATION } from 'GraphQl/Mutations/mutations';
 import { languages } from 'utils/languages';
-import { RECAPTCHA_SITE_KEY } from 'Constant/constant';
+import { RECAPTCHA_SITE_KEY, REACT_APP_USE_RECAPTCHA } from 'Constant/constant';
 
 function LoginPage(): JSX.Element {
   const { t } = useTranslation('translation', { keyPrefix: 'loginPage' });
@@ -42,6 +42,8 @@ function LoginPage(): JSX.Element {
     password: '',
   });
   const [show, setShow] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const currentLanguageCode = cookies.get('i18next') || 'en';
@@ -62,6 +64,10 @@ function LoginPage(): JSX.Element {
     setIsOpen(false);
   };
 
+  const handleShowCon = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [login, { loading: loginLoading }] = useMutation(LOGIN_MUTATION);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,9 +85,7 @@ function LoginPage(): JSX.Element {
       } catch (error: any) {
         /* istanbul ignore next */
         if (error.message === 'Failed to fetch') {
-          toast.error(
-            'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-          );
+          toast.error(t('talawaApiUnavailable'));
         } else {
           toast.error(error.message);
         }
@@ -93,6 +97,10 @@ function LoginPage(): JSX.Element {
 
   const verifyRecaptcha = async (recaptchaToken: any) => {
     try {
+      /* istanbul ignore next */
+      if (REACT_APP_USE_RECAPTCHA !== 'yes') {
+        return true;
+      }
       const { data } = await recaptcha({
         variables: {
           recaptchaToken,
@@ -102,7 +110,7 @@ function LoginPage(): JSX.Element {
       return data.recaptcha;
     } catch (error: any) {
       /* istanbul ignore next */
-      toast.error('Captcha Error!');
+      toast.error(t('captchaError'));
     }
   };
 
@@ -118,7 +126,7 @@ function LoginPage(): JSX.Element {
     const isVerified = await verifyRecaptcha(recaptchaToken);
     /* istanbul ignore next */
     if (!isVerified) {
-      toast.error('Please, check the captcha.');
+      toast.error(t('Please_check_the_captcha'));
       return;
     }
 
@@ -141,9 +149,7 @@ function LoginPage(): JSX.Element {
 
           /* istanbul ignore next */
           if (data) {
-            toast.success(
-              'Successfully Registered. Please wait until you will be approved.'
-            );
+            toast.success(t('successfullyRegistered'));
 
             setSignFormState({
               signfirstName: '',
@@ -156,20 +162,18 @@ function LoginPage(): JSX.Element {
         } catch (error: any) {
           /* istanbul ignore next */
           if (error.message === 'Failed to fetch') {
-            toast.error(
-              'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-            );
+            toast.error(t('talawaApiUnavailable'));
           } else if (error.message) {
             toast.warn(error.message);
           } else {
-            toast.error('Something went wrong, Please try after sometime.');
+            toast.error(t('Something_went_wrong'));
           }
         }
       } else {
-        toast.warn('Password and Confirm password mismatches.');
+        toast.warn(t('passwordMismatches'));
       }
     } else {
-      toast.warn('Fill all the Details Correctly.');
+      toast.warn(t('fillCorrectly'));
     }
   };
 
@@ -182,7 +186,7 @@ function LoginPage(): JSX.Element {
     const isVerified = await verifyRecaptcha(recaptchaToken);
     /* istanbul ignore next */
     if (!isVerified) {
-      toast.error('Please, check the captcha.');
+      toast.error(t('Please_check_the_captcha'));
       return;
     }
 
@@ -209,21 +213,19 @@ function LoginPage(): JSX.Element {
             window.location.replace('/orglist');
           }
         } else {
-          toast.warn('Sorry! you are not Authorised!');
+          toast.warn(t('notAuthorised'));
         }
       } else {
-        toast.warn('User not found!');
+        toast.warn(t('notFound'));
       }
     } catch (error: any) {
       /* istanbul ignore next */
       if (error.message == 'Failed to fetch') {
-        toast.error(
-          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-        );
+        toast.error(t('talawaApiUnavailable'));
       } else if (error.message) {
         toast.error(error.message);
       } else {
-        toast.error('Something went wrong, Please try after sometime.');
+        toast.error(t('Something_went_wrong'));
       }
     }
   };
@@ -395,32 +397,56 @@ function LoginPage(): JSX.Element {
                         </span>
                       )}
                   </div>
-                  <label>{t('confirmPassword')}</label>
-                  <input
-                    type={show ? 'text' : 'password'}
-                    id="cpassword"
-                    placeholder={t('confirmPassword')}
-                    required
-                    value={signformState.cPassword}
-                    onChange={(e) => {
-                      setSignFormState({
-                        ...signformState,
-                        cPassword: e.target.value,
-                      });
-                    }}
-                  />
-                  <label
-                    id="showPasswordr"
-                    className={styles.showregister}
-                    onClick={handleShow}
-                    data-testid="showPasswordr"
-                  ></label>
-                  <div className="googleRecaptcha">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey={RECAPTCHA_SITE_KEY ?? ''}
+                  <div className={styles.passwordalert}>
+                    <label>{t('confirmPassword')}</label>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      id="signpassword"
+                      placeholder={t('confirmPassword')}
+                      required
+                      value={signformState.cPassword}
+                      onChange={(e) => {
+                        setSignFormState({
+                          ...signformState,
+                          cPassword: e.target.value,
+                        });
+                      }}
+                      data-testid="cpassword"
                     />
+                    <label
+                      id="showPasswordr"
+                      className={styles.showregister}
+                      onClick={handleShowCon}
+                      data-testid="showPasswordrCon"
+                    >
+                      {showConfirmPassword ? (
+                        <i className="fas fa-eye"></i>
+                      ) : (
+                        <i className="fas fa-eye-slash"></i>
+                      )}
+                    </label>
+                    {signformState.cPassword.length > 0 &&
+                      signformState.signPassword !==
+                        signformState.cPassword && (
+                        <span data-testid="passwordCheck">
+                          {t('Password_and_Confirm_password_mismatches.')}
+                        </span>
+                      )}
                   </div>
+                  {REACT_APP_USE_RECAPTCHA === 'yes' ? (
+                    <div className="googleRecaptcha">
+                      <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={
+                          /* istanbul ignore next */
+                          RECAPTCHA_SITE_KEY ? RECAPTCHA_SITE_KEY : 'XXX'
+                        }
+                      />
+                    </div>
+                  ) : (
+                    /* istanbul ignore next */
+                    <></>
+                  )}
                   <button
                     type="submit"
                     className={styles.greenregbtn}
@@ -501,12 +527,20 @@ function LoginPage(): JSX.Element {
                     )}
                   </label>
                 </div>
-                <div className="googleRecaptcha">
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={RECAPTCHA_SITE_KEY ?? ''}
-                  />
-                </div>
+                {REACT_APP_USE_RECAPTCHA === 'yes' ? (
+                  <div className="googleRecaptcha">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={
+                        /* istanbul ignore next */
+                        RECAPTCHA_SITE_KEY ? RECAPTCHA_SITE_KEY : 'XXX'
+                      }
+                    />
+                  </div>
+                ) : (
+                  /* istanbul ignore next */
+                  <></>
+                )}
                 <button
                   type="submit"
                   className={styles.greenregbtn}

@@ -8,10 +8,13 @@ import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import i18next from 'i18next';
 import { toast } from 'react-toastify';
-
+import MenuIcon from '@mui/icons-material/Menu';
 import styles from './AdminNavbar.module.css';
 import AboutImg from 'assets/images/defaultImg.png';
-import { ORGANIZATIONS_LIST } from 'GraphQl/Queries/Queries';
+import {
+  ORGANIZATIONS_LIST,
+  USER_ORGANIZATION_LIST,
+} from 'GraphQl/Queries/Queries';
 import { UPDATE_SPAM_NOTIFICATION_MUTATION } from 'GraphQl/Mutations/mutations';
 import { languages } from 'utils/languages';
 
@@ -39,6 +42,11 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
     variables: { id: currentUrl },
   });
   const [updateSpam] = useMutation(UPDATE_SPAM_NOTIFICATION_MUTATION);
+  const { data: data_2 } = useQuery(USER_ORGANIZATION_LIST, {
+    variables: { id: localStorage.getItem('id') },
+  });
+
+  const isSuperAdmin = data_2?.user.userType === 'SUPERADMIN';
 
   useEffect(() => {
     const handleUpdateSpam = async () => {
@@ -172,7 +180,7 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
             })}
           </Nav>
           <Link className={styles.allOrgBtn} to="/orglist">
-            {t('allOrganizations')}
+            {isSuperAdmin ? t('allOrganizations') : t('yourOrganization')}
           </Link>
           <Nav
             className="ml-auto items-center"
@@ -183,8 +191,19 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
                 variant="white"
                 id="dropdown-basic"
                 data-testid="logoutDropdown"
-                className="navbar-toggler-icon"
-              ></Dropdown.Toggle>
+              >
+                {data?.organizations[0].image ? (
+                  <span>
+                    <MenuIcon></MenuIcon>
+                  </span>
+                ) : (
+                  <img
+                    src={AboutImg}
+                    className={styles.roundedcircle}
+                    data-testid="navbarOrgImageAbsent"
+                  />
+                )}
+              </Dropdown.Toggle>
               <Dropdown.Menu className={styles.dropdownMenu}>
                 <Dropdown.Item
                   data-toggle="modal"

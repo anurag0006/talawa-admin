@@ -13,7 +13,10 @@ import Calendar from 'components/EventCalendar/Calendar';
 
 import styles from './OrganizationEvents.module.css';
 import AdminNavbar from 'components/AdminNavbar/AdminNavbar';
-import { ORGANIZATION_EVENT_CONNECTION_LIST } from 'GraphQl/Queries/Queries';
+import {
+  ORGANIZATION_EVENT_CONNECTION_LIST,
+  ORGANIZATIONS_LIST,
+} from 'GraphQl/Queries/Queries';
 import { CREATE_EVENT_MUTATION } from 'GraphQl/Mutations/mutations';
 import { RootState } from 'state/reducers';
 import debounce from 'utils/debounce';
@@ -68,6 +71,13 @@ function OrganizationEvents(): JSX.Element {
     }
   );
 
+  const { data: orgData } = useQuery(ORGANIZATIONS_LIST, {
+    variables: { id: currentUrl },
+  });
+
+  const userId = localStorage.getItem('id') as string;
+  const userRole = localStorage.getItem('UserType') as string;
+
   const [create, { loading: loading_2 }] = useMutation(CREATE_EVENT_MUTATION);
 
   const CreateEvent = async (e: ChangeEvent<HTMLFormElement>) => {
@@ -92,7 +102,7 @@ function OrganizationEvents(): JSX.Element {
 
       /* istanbul ignore next */
       if (data) {
-        toast.success('Congratulations! The Event is created.');
+        toast.success(t('eventCreated'));
         refetch();
         setFormState({
           title: '',
@@ -106,9 +116,7 @@ function OrganizationEvents(): JSX.Element {
     } catch (error: any) {
       /* istanbul ignore next */
       if (error.message === 'Failed to fetch') {
-        toast.error(
-          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-        );
+        toast.error(t('talawaApiUnavailable'));
       } else {
         toast.error(error.message);
       }
@@ -215,7 +223,12 @@ function OrganizationEvents(): JSX.Element {
               </Button>
             </Row>
           </div>
-          <Calendar eventData={data?.eventsByOrganizationConnection} />
+          <Calendar
+            eventData={data?.eventsByOrganizationConnection}
+            orgData={orgData}
+            userRole={userRole}
+            userId={userId}
+          />
         </Col>
       </Row>
       <Modal

@@ -37,7 +37,6 @@ function OrgList(): JSX.Element {
     location: '',
     image: '',
   });
-  const [, setSearchByName] = useState('');
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -70,13 +69,47 @@ function OrgList(): JSX.Element {
     error: error_list,
     refetch,
   } = useQuery(ORGANIZATION_CONNECTION_LIST);
+  /*istanbul ignore next*/
+  interface UserType {
+    adminFor: Array<{
+      _id: string;
+    }>;
+  }
+  /*istanbul ignore next*/
+  interface CurrentOrgType {
+    _id: string;
+  }
+  /*istanbul ignore next*/
+  const isAdminForCurrentOrg = (
+    user: UserType | undefined,
+    currentOrg: CurrentOrgType
+  ): boolean => {
+    return (
+      user?.adminFor.length === 1 && user?.adminFor[0]._id === currentOrg._id
+    );
+  };
 
   const CreateOrg = async (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { name, descrip, location, visible, ispublic, image } = formState;
+    const {
+      name: _name,
+      descrip: _descrip,
+      location: _location,
+      visible,
+      ispublic,
+      image,
+    } = formState;
+
+    const name = _name.trim();
+    const descrip = _descrip.trim();
+    const location = _location.trim();
 
     try {
+      if (!name || !descrip || !location) {
+        throw new Error('Text fields cannot be empty strings');
+      }
+
       const { data } = await create({
         variables: {
           name: name,
@@ -142,21 +175,12 @@ function OrgList(): JSX.Element {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
+  /* istanbul ignore next */
   const handleSearchByName = (e: any) => {
     const { value } = e.target;
-    setSearchByName(value);
-
-    if (value.length === 0) {
-      refetch({
-        filter: '',
-      });
-    } else {
-      setSearchByName(value);
-      refetch({
-        filter: value,
-      });
-    }
+    refetch({
+      filter: value,
+    });
   };
   let dataRevOrg;
   const debouncedHandleSearchByName = debounce(handleSearchByName);
@@ -185,9 +209,9 @@ function OrgList(): JSX.Element {
               <div className={styles.userEmail}>
                 {t('email')}:
                 <p>
-                  {data_2?.user.email.substring(
+                  {(data_2?.user.email || '').substring(
                     0,
-                    data_2?.user.email.length / 2
+                    (data_2?.user.email || '').length / 2
                   )}
                   <span>
                     {data_2?.user.email.substring(
@@ -201,7 +225,7 @@ function OrgList(): JSX.Element {
           </div>
         </Col>
         <Col xl={8} className={styles.mainpagerightContainer}>
-          <div className={styles.mainpageright}>
+          <div className={styles.mainpageright} data-testid="mainpageright">
             <div className={styles.justifysp}>
               <p className={styles.logintitle}>{t('organizationList')}</p>
             </div>
@@ -212,6 +236,7 @@ function OrgList(): JSX.Element {
                 disabled={isSuperAdmin}
                 onClick={showInviteModal}
                 data-testid="createOrganizationBtn"
+                style={{ display: isSuperAdmin ? 'none' : 'block' }}
               >
                 + {t('createOrganization')}
               </Button>
@@ -223,9 +248,15 @@ function OrgList(): JSX.Element {
                 autoComplete="off"
                 required
                 onChange={debouncedHandleSearchByName}
+                style={{
+                  display:
+                    data_2 && data_2.user.userType !== 'SUPERADMIN'
+                      ? 'none'
+                      : 'block',
+                }}
               />
             </div>
-            <div className={styles.list_box}>
+            <div className={styles.list_box} data-testid="organizations-list">
               {data?.organizationsConnection.length > 0 ? (
                 (rowsPerPage > 0
                   ? dataRevOrg.slice(
@@ -243,7 +274,7 @@ function OrgList(): JSX.Element {
                     createdAt: string;
                     location: string | null;
                   }) => {
-                    if (data_2?.user.userType == 'SUPERADMIN') {
+                    if (data_2 && data_2.user.userType == 'SUPERADMIN') {
                       return (
                         <SuperDashListCard
                           id={datas._id}
@@ -258,7 +289,7 @@ function OrgList(): JSX.Element {
                           orgLocation={datas.location}
                         />
                       );
-                    } else {
+                    } else if (isAdminForCurrentOrg(data_2?.user, datas)) {
                       return (
                         <AdminDashListCard
                           id={datas._id}
@@ -273,6 +304,8 @@ function OrgList(): JSX.Element {
                           orgLocation={datas.location}
                         />
                       );
+                    } else {
+                      return null;
                     }
                   }
                 )
@@ -294,15 +327,17 @@ function OrgList(): JSX.Element {
                 }}
               >
                 <tbody>
-                  <tr>
-                    <PaginationList
-                      count={data ? data.organizationsConnection.length : 0}
-                      rowsPerPage={rowsPerPage}
-                      page={page}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                  </tr>
+                  {data_2?.user.userType === 'SUPERADMIN' && (
+                    <tr data-testid="rowsPPSelect">
+                      <PaginationList
+                        count={data ? data.organizationsConnection.length : 0}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                      />
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -311,6 +346,7 @@ function OrgList(): JSX.Element {
       </Row>
       <Modal
         isOpen={modalisOpen}
+        onRequestClose={() => setmodalIsOpen(false)}
         style={{
           overlay: { backgroundColor: 'grey' },
         }}
@@ -326,7 +362,12 @@ function OrgList(): JSX.Element {
                 className={styles.cancel}
                 data-testid="closeOrganizationModal"
               >
-                <i className="fa fa-times"></i>
+                <i
+                  className="fa fa-times"
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                ></i>
               </a>
             </div>
             <Form onSubmitCapture={CreateOrg}>
