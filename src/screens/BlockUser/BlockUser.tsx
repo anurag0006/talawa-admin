@@ -14,6 +14,7 @@ import {
 } from 'GraphQl/Mutations/mutations';
 import { useTranslation } from 'react-i18next';
 import PaginationList from 'components/PaginationList/PaginationList';
+import { errorHandler } from 'utils/errorHandler';
 
 const Requests = () => {
   const { t } = useTranslation('translation', {
@@ -55,20 +56,22 @@ const Requests = () => {
   }, [data, data_2]);
 
   if (spammers_loading) {
-    return <div className="loader"></div>;
+    return <div className={styles.loader}></div>;
   }
 
   const memberIds = membersArray.map((user: { _id: string }) => user._id);
 
-  const memberUsersData = data.users.filter((user: { _id: string }) =>
-    memberIds.includes(user._id)
-  );
+  /* istanbul ignore next */
+  const memberUsersData =
+    data?.users.filter((user: { _id: string }) =>
+      memberIds.includes(user._id)
+    ) ?? [];
 
+  /* istanbul ignore next */
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    /* istanbul ignore next */
     setPage(newPage);
   };
 
@@ -104,11 +107,7 @@ const Requests = () => {
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      if (error.message === 'Failed to fetch') {
-        toast.error(t('talawaApiUnavailable'));
-      } else {
-        toast.error(error.message);
-      }
+      errorHandler(t, error);
     }
   };
 
@@ -127,11 +126,7 @@ const Requests = () => {
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      if (error.message === 'Failed to fetch') {
-        toast.error(t('talawaApiUnavailable'));
-      } else {
-        toast.error(error.message);
-      }
+      errorHandler(t, error);
     }
   };
 
@@ -197,7 +192,7 @@ const Requests = () => {
                         index: number
                       ) => {
                         return (
-                          <tr key={user._id}>
+                          <tr key={user._id} data-testid={`row${user._id}`}>
                             <th scope="row">{page * 10 + (index + 1)}</th>
                             <td>{`${user.firstName} ${user.lastName}`}</td>
                             <td>{user.email}</td>

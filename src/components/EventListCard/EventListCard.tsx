@@ -9,7 +9,8 @@ import {
   DELETE_EVENT_MUTATION,
   UPDATE_EVENT_MUTATION,
 } from 'GraphQl/Mutations/mutations';
-import { Form } from 'antd';
+import { Form } from 'react-bootstrap';
+import { errorHandler } from 'utils/errorHandler';
 
 interface EventListCardProps {
   key: string;
@@ -84,11 +85,7 @@ function EventListCard(props: EventListCardProps): JSX.Element {
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      if (error.message === 'Failed to fetch') {
-        toast.error(t('talawaApiUnavailable'));
-      } else {
-        toast.error(error.message);
-      }
+      errorHandler(t, error);
     }
   };
 
@@ -120,11 +117,7 @@ function EventListCard(props: EventListCardProps): JSX.Element {
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      if (error.message === 'Failed to fetch') {
-        toast.error(t('talawaApiUnavailable'));
-      } else {
-        toast.error(error.message);
-      }
+      errorHandler(t, error);
     }
   };
 

@@ -140,7 +140,9 @@
     "admins": "管理員",
     "users": "用戶",
     "searchName": "輸入名字",
-    "searchevent": "輸入事件"
+    "searchevent": "輸入事件",
+    "searchFirstName": "输入名字",
+    "searchLastName": "输入姓氏"
   },
   "userListCard": {
     "joined": "加入",
@@ -243,6 +245,15 @@
     "organization": "組織",
     "post not found!": "郵政 未找到!",
     "organization not found!": "組織 未找到!"
+  },
+  "userNotFound": {
+    "user": "用户",
+    "not found!": "未找到!",
+    "roles": "角色",
+    "user not found!": "找不到用户!",
+    "member not found!": "找不到会员！",
+    "admin not found!": "找不到管理员！",
+    "roles not found!": "找不到角色!"
   },
   "orgPostCard": {
     "author": "作者",

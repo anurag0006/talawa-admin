@@ -144,7 +144,9 @@
     "admins": "Admins",
     "users": "Users",
     "searchName": "Enter Name",
-    "searchevent": "Enter Event"
+    "searchevent": "Enter Event",
+    "searchFirstName": "Enter First Name",
+    "searchLastName": "Enter Last Name"
   },
   "userListCard": {
     "joined": "Joined",
@@ -247,6 +249,15 @@
     "organization": "Organization",
     "post not found!": "Post Not Found!",
     "organization not found!": "Organization Not Found!"
+  },
+  "userNotFound": {
+    "user": "User",
+    "not found!": "Not Found!",
+    "roles": "Roles",
+    "user not found!": "User Not Found!",
+    "member not found!": "Member Not Found!",
+    "admin not found!": "Admin Not Found!",
+    "roles not found!": "Roles Not Found!"
   },
   "orgPostCard": {
     "author": "Author",

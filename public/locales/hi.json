@@ -140,7 +140,9 @@
     "admins": "व्यवस्थापक",
     "users": "उपयोगकर्ता",
     "searchName": "नाम दर्ज करें",
-    "searchevent": "घटना दर्ज करें"
+    "searchevent": "घटना दर्ज करें",
+    "searchFirstName": "प्रथम नाम दर्ज करें",
+    "searchLastName": "अंतिम नाम दर्ज करो"
   },
   "userListCard": {
     "joined": "में शामिल हो गए",
@@ -243,6 +245,15 @@
     "organization": "संगठन",
     "post not found!": "पोस्ट नहीं मिला!",
     "organization not found!": "संगठन नहीं मिला!"
+  },
+  "userNotFound": {
+    "user": "उपयोगकर्ता",
+    "not found!": "नहीं मिला!",
+    "roles": "भूमिका",
+    "user not found!": "उपयोगकर्ता नहीं मिले!",
+    "member not found!": "सदस्य अनुपस्थित!",
+    "admin not found!": "व्यवस्थापक नहीं मिला!",
+    "roles not found!": "भूमिकाएँ नहीं मिलीं!"
   },
   "orgPostCard": {
     "author": "लेखक",

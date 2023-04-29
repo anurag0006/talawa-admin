@@ -8,6 +8,7 @@ import { USER_DETAILS } from 'GraphQl/Queries/Queries';
 
 import { languages } from 'utils/languages';
 import { toast } from 'react-toastify';
+import { errorHandler } from 'utils/errorHandler';
 
 interface UserUpdateProps {
   id: string;
@@ -25,11 +26,10 @@ const UserUpdate: React.FC<UserUpdateProps> = ({ id }): JSX.Element => {
     email: '',
     password: '',
     applangcode: '',
-    selectedOption: '',
     file: '',
   });
 
-  const [login] = useMutation(UPDATE_USER_MUTATION);
+  const [updateUser] = useMutation(UPDATE_USER_MUTATION);
 
   const {
     data: data,
@@ -64,8 +64,12 @@ const UserUpdate: React.FC<UserUpdateProps> = ({ id }): JSX.Element => {
 
   const login_link = async () => {
     try {
-      const { data } = await login({
+      const { data } = await updateUser({
         variables: {
+          //Currently on these  fields are supported by the api
+          firstName: formState.firstName,
+          lastName: formState.lastName,
+          email: formState.email,
           file: formState.file,
         },
       });
@@ -77,23 +81,16 @@ const UserUpdate: React.FC<UserUpdateProps> = ({ id }): JSX.Element => {
           email: '',
           password: '',
           applangcode: '',
-          selectedOption: '',
           file: '',
         });
         toast.success('Successful updated');
         setTimeout(() => {
           window.location.reload();
-        }, 2000);
+        }, 500);
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      if (error.message === 'Failed to fetch') {
-        toast.error(
-          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
-        );
-      } else {
-        toast.error(error.message);
-      }
+      errorHandler(t, error);
     }
   };
 
@@ -185,41 +182,6 @@ const UserUpdate: React.FC<UserUpdateProps> = ({ id }): JSX.Element => {
                     </option>
                   ))}
                 </select>
-              </label>
-            </div>
-            <div>
-              <label>
-                {t('userType')}
-                <div className={styles.radio_buttons}>
-                  <input
-                    type="radio"
-                    id="admin"
-                    value="selectadmin"
-                    name="selectRole"
-                    checked={formState.selectedOption === 'selectadmin'}
-                    onChange={(e) => {
-                      setFormState({
-                        ...formState,
-                        selectedOption: e.target.value,
-                      });
-                    }}
-                  />
-                  <label htmlFor="admin">{t('admin')}</label>
-                  <input
-                    type="radio"
-                    id="superadmin"
-                    value="selectsuperadmin"
-                    name="selectRole"
-                    checked={formState.selectedOption === 'selectsuperadmin'}
-                    onChange={(e) => {
-                      setFormState({
-                        ...formState,
-                        selectedOption: e.target.value,
-                      });
-                    }}
-                  />
-                  <label htmlFor="superadmin">{t('superAdmin')}</label>
-                </div>
               </label>
             </div>
           </div>

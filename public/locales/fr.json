@@ -140,7 +140,9 @@
     "admins": "Administrateurs",
     "users": "Utilisateurs",
     "searchName": "Entrez le nom",
-    "searchevent": "Entrez l'événement"
+    "searchevent": "Entrez l'événement",
+    "searchFirstName": "Entrez votre prénom",
+    "searchLastName": "Entrer le nom de famille"
   },
   "userListCard": {
     "joined": "Inscrit",
@@ -243,6 +245,15 @@
     "organization": "Organization",
     "post not found!": "Poste Pas Trouvé!",
     "organization not found!": "Organization Pas Trouvé!"
+  },
+  "userNotFound": {
+    "user": "utilisateur",
+    "not found!": "pas trouvé!",
+    "roles": "les rôles",
+    "user not found!": "utilisateur non trouvé!",
+    "member not found!": "Membre introuvable!",
+    "admin not found!": "Administrateur introuvable!",
+    "roles not found!": "utilisateur non trouvé!"
   },
   "orgPostCard": {
     "author": "Auteur",
